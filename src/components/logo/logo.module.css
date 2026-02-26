@@ -1,0 +1,13 @@
+.logo__container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: white;
+}
+
+.logo_img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
