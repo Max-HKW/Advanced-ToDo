@@ -7,6 +7,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 /**
+ * Utils
+ */
+import { formatCustomData, getTaskDueDateColorClass, cn } from '@/lib/utils';
+
+/**
  * Components
  */
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -78,12 +83,12 @@ const TaskForm = ({
   onCancel,
   onSubmit,
 }: TaskFormProps) => {
-  const { register, control } = useForm<TaskForm>({
+  const { register, control, setValue, handleSubmit } = useForm<TaskForm>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
-      content: DEFAULT_FORM_DATA.content,
-      due_date: DEFAULT_FORM_DATA.due_date,
-      projectId: DEFAULT_FORM_DATA.projectId,
+      content: defaultFormData.content,
+      due_date: defaultFormData.due_date,
+      projectId: defaultFormData.projectId,
     },
   });
 
@@ -96,138 +101,164 @@ const TaskForm = ({
   const [formData, setFormData] = useState(defaultFormData);
 
   const dueDate = useWatch({ control, name: 'due_date' });
+  const taskContent = useWatch({ control, name: 'content' });
+
+  const _onSubmit = (values: TaskForm) => {
+    onSubmit?.(values);
+  };
 
   return (
-    <Card className="focus-within:border-foreground/30">
-      <CardContent className="p-2">
-        <Textarea
-          className="border-0! ring-0! mb-2 p-1 mt-2"
-          placeholder="After finishing the project, take a tour"
-          autoFocus
-          {...register('content')}
-        />
+    <form onSubmit={handleSubmit(_onSubmit)}>
+      <Card className="focus-within:border-foreground/30">
+        <CardContent className="p-2">
+          <Textarea
+            className="border-0! ring-0! mb-2 p-1 mt-2"
+            placeholder="After finishing the project, take a tour"
+            autoFocus
+            {...register('content')}
+          />
 
-        <div className="ring-1 ring-border rounded-md max-w-max">
+          <div className="ring-1 ring-border rounded-md max-w-max">
+            <Popover
+              open={dueDateOpen}
+              onOpenChange={setDueDateOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className={cn(getTaskDueDateColorClass(dueDate, false))}
+                >
+                  {' '}
+                  <CalendarIcon />{' '}
+                  {dueDate ? formatCustomData(dueDate) : 'Due date'}
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-auto p-0">
+                <Controller
+                  name="due_date"
+                  control={control}
+                  render={({ field }) => (
+                    <Calendar
+                      mode="single"
+                      autoFocus
+                      disabled={{ before: new Date() }}
+                      selected={field.value ?? undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ?? null);
+                        setDueDateOpen(false);
+                      }}
+                    />
+                  )}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {dueDate && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-2 -ms-2"
+                    aria-label="Remove due date"
+                    onClick={() => setValue('due_date', null)}
+                  >
+                    <X />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent>Remove due date</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </CardContent>
+
+        <Separator />
+
+        <CardFooter className="grid grid-cols-[minmax(0,1fr)_max-content] gap-2 p-2">
           <Popover
-            open={dueDateOpen}
-            onOpenChange={setDueDateOpen}
+            open={projectOpen}
+            onOpenChange={setProjectOpen}
+            modal
           >
             <PopoverTrigger asChild>
               <Button
-                type="button"
                 variant="ghost"
-                size="sm"
+                role="combobox"
+                aria-expanded={false}
+                className="max-w-max"
               >
-                {' '}
-                <CalendarIcon />{' '}
-                {dueDate ? new Date(dueDate).toDateString() : 'Due date'}
+                <Inbox /> Inbox <ChevronDown />
               </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-auto p-0">
-              <Controller
-                name="due_date"
-                control={control}
-                render={({ field }) => (
-                  <Calendar
-                    mode="single"
-                    autoFocus
-                    disabled={{ before: new Date() }}
-                    selected={field.value ?? undefined}
-                    onSelect={(date) => {
-                      field.onChange(date ?? null);
-                      setDueDateOpen(false);
-                    }}
-                  />
-                )}
-              />
+            <PopoverContent
+              className="w-60 p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput placeholder="Search project..." />
+
+                <CommandList>
+                  <ScrollArea>
+                    <CommandEmpty>No project found.</CommandEmpty>
+
+                    <CommandGroup>
+                      <CommandItem value="1">
+                        <Hash /> Project 1
+                      </CommandItem>
+                      <CommandItem value="2">
+                        <Hash /> Project 2
+                      </CommandItem>
+                      <CommandItem value="3">
+                        <Hash /> Project 3
+                      </CommandItem>
+                      <CommandItem value="4">
+                        <Hash /> Project 4
+                      </CommandItem>
+                      <CommandItem value="5">
+                        <Hash /> Project 5
+                      </CommandItem>
+                      <CommandItem value="6">
+                        <Hash /> Project 6
+                      </CommandItem>
+                    </CommandGroup>
+                  </ScrollArea>
+                </CommandList>
+              </Command>
             </PopoverContent>
           </Popover>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="px-2 -ms-2"
-                aria-label="Remove due date"
-              >
-                <X />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>Remove due date</TooltipContent>
-          </Tooltip>
-        </div>
-      </CardContent>
-
-      <Separator />
-
-      <CardFooter className="grid grid-cols-[minmax(0,1fr)_max-content] gap-2 p-2">
-        <Popover modal>
-          <PopoverTrigger asChild>
+          <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              role="combobox"
-              aria-expanded={false}
-              className="max-w-max"
+              type="button"
+              variant="secondary"
+              onClick={onCancel}
             >
-              <Inbox /> Inbox <ChevronDown />
+              <span className="hidden md:block">Cancel</span>
+
+              <X className="md:hidden" />
             </Button>
-          </PopoverTrigger>
 
-          <PopoverContent
-            className="w-60 p-0"
-            align="start"
-          >
-            <Command>
-              <CommandInput placeholder="Search project..." />
+            <Button
+              type="submit"
+              aria-disabled={!taskContent}
+              className="aria-disabled:opacity-50 aria-disabled:pointer-events-none"
+            >
+              <span className="hidden md:block">
+                {mode === 'create' ? 'Add task' : 'Save'}
+              </span>
 
-              <CommandList>
-                <ScrollArea>
-                  <CommandEmpty>No project found.</CommandEmpty>
-
-                  <CommandGroup>
-                    <CommandItem value="1">
-                      <Hash /> Project 1
-                    </CommandItem>
-                    <CommandItem value="2">
-                      <Hash /> Project 2
-                    </CommandItem>
-                    <CommandItem value="3">
-                      <Hash /> Project 3
-                    </CommandItem>
-                    <CommandItem value="4">
-                      <Hash /> Project 4
-                    </CommandItem>
-                    <CommandItem value="5">
-                      <Hash /> Project 5
-                    </CommandItem>
-                    <CommandItem value="6">
-                      <Hash /> Project 6
-                    </CommandItem>
-                  </CommandGroup>
-                </ScrollArea>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-
-        <div className="flex items-center gap-2">
-          <Button variant="secondary">
-            <span className="hidden md:block">Cancel</span>
-
-            <X className="md:hidden" />
-          </Button>
-
-          <Button>
-            <span className="hidden md:block">Add task</span>
-
-            <SendHorizonal className="md:hidden" />
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+              <SendHorizonal className="md:hidden" />
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </form>
   );
 };
 
