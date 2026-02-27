@@ -1,61 +1,61 @@
 /**
  * Node modules
  */
-import { useState } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import * as chrono from 'chrono-node';
 
 /**
  * Utils
  */
-import { formatCustomData, getTaskDueDateColorClass, cn } from '@/lib/utils';
+import { cn, formatCustomData, getTaskDueDateColorClass } from '@/lib/utils';
 
 /**
  * Components
  */
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
   Command,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
 } from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 /**
  * Assets
  */
 import {
   CalendarIcon,
-  X,
-  Inbox,
   ChevronDown,
   Hash,
+  Inbox,
   SendHorizonal,
+  X,
 } from 'lucide-react';
 
 /**
  * Types
  */
+import type { TaskFormType } from '@/shemas/taskSchema';
 import type { ClassValue } from 'clsx';
-import type { TaskForm } from '@/shemas/taskSchema';
 
 /**
  * Schemas
@@ -63,14 +63,14 @@ import type { TaskForm } from '@/shemas/taskSchema';
 import { taskFormSchema } from '@/shemas/taskSchema';
 
 type TaskFormProps = {
-  defaultFormData?: TaskForm;
+  defaultFormData?: TaskFormType;
   className?: ClassValue;
   mode: 'create' | 'edit';
   onCancel?: () => void;
-  onSubmit?: (formData: TaskForm) => void;
+  onSubmit?: (formData: TaskFormType) => void;
 };
 
-const DEFAULT_FORM_DATA: TaskForm = {
+const DEFAULT_FORM_DATA: TaskFormType = {
   content: '',
   due_date: null,
   projectId: null,
@@ -83,7 +83,7 @@ const TaskForm = ({
   onCancel,
   onSubmit,
 }: TaskFormProps) => {
-  const { register, control, setValue, handleSubmit } = useForm<TaskForm>({
+  const { register, control, setValue, handleSubmit } = useForm<TaskFormType>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       content: defaultFormData.content,
@@ -96,15 +96,25 @@ const TaskForm = ({
   const [projectColorHex, setProjectColorHex] = useState('');
 
   const [dueDateOpen, setDueDateOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
-
-  const [formData, setFormData] = useState(defaultFormData);
+  const [projectIsOpen, setProjectIsOpen] = useState(false);
 
   const dueDate = useWatch({ control, name: 'due_date' });
   const taskContent = useWatch({ control, name: 'content' });
 
-  const _onSubmit = (values: TaskForm) => {
-    onSubmit?.(values);
+  useEffect(() => {
+    const chronoParsed = chrono.parse(taskContent);
+
+    if (chronoParsed.length) {
+      const lastDate = chronoParsed[chronoParsed.length - 1];
+      setValue('due_date', lastDate.date());
+    }
+  }, [taskContent]);
+
+  const _onSubmit = (formData: TaskFormType) => {
+    if (!taskContent) return;
+    console.log(formData);
+    onSubmit?.(formData);
+    setValue('content', '');
   };
 
   return (
@@ -181,15 +191,15 @@ const TaskForm = ({
 
         <CardFooter className="grid grid-cols-[minmax(0,1fr)_max-content] gap-2 p-2">
           <Popover
-            open={projectOpen}
-            onOpenChange={setProjectOpen}
+            open={projectIsOpen}
+            onOpenChange={setProjectIsOpen}
             modal
           >
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
                 role="combobox"
-                aria-expanded={false}
+                aria-expanded={projectIsOpen}
                 className="max-w-max"
               >
                 <Inbox /> Inbox <ChevronDown />

@@ -29,10 +29,10 @@ const taskFormSchema = z.object({
   projectId: z.string().nullable(),
 });
 
-type Project = z.infer<typeof projectSchema>;
-type ProjectForm = z.infer<typeof projectFormSchema>;
-type Task = z.infer<typeof taskSchema>;
-type TaskForm = z.infer<typeof taskFormSchema>;
+type ProjectType = z.infer<typeof projectSchema>;
+type ProjectFormType = z.infer<typeof projectFormSchema>;
+type TaskType = z.infer<typeof taskSchema>;
+type TaskFormType = z.infer<typeof taskFormSchema>;
 
 export { projectSchema, projectFormSchema, taskSchema, taskFormSchema };
-export type { Project, ProjectForm, Task, TaskForm };
+export type { ProjectType, ProjectFormType, TaskType, TaskFormType };
