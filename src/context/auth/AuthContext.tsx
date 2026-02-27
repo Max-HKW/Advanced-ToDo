@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { type Session, type User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase';
 
 interface AuthState {
   user: User | null;
@@ -53,17 +53,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-    value={{
-      user: session?.user ?? null,
-      session,
-      isAuthenticated: !!session?.user,
-      isLoading,
-      signOut,
-    }}
+      value={{
+        user: session?.user ?? null,
+        session,
+        isAuthenticated: !!session?.user,
+        isLoading,
+        signOut,
+      }}
     >
       {children}
     </AuthContext.Provider>
-  )
+  );
 };
 
 export default AuthProvider;
@@ -72,4 +72,4 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
-}
+};

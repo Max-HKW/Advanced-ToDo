@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { supabase } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -43,8 +43,8 @@ export const Route = createFileRoute('/_public/register')({
 });
 
 function RegisterPage() {
-   useHead({
-    title: "Signup",
+  useHead({
+    title: 'Signup',
   });
   const [serverError, setServerError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
@@ -168,9 +168,7 @@ function RegisterPage() {
                 placeholder="john.doe@gmail.com"
                 autoComplete="email"
               />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -185,15 +183,13 @@ function RegisterPage() {
             >
               <FieldLabel htmlFor={field.name}>Password</FieldLabel>
               <Input
-              type='password'
+                type="password"
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 placeholder="••••••••"
               />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -208,15 +204,13 @@ function RegisterPage() {
             >
               <FieldLabel htmlFor={field.name}>Confirm password</FieldLabel>
               <Input
-              type='password'
+                type="password"
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 placeholder="••••••••"
               />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -228,7 +222,9 @@ function RegisterPage() {
           disabled={form.formState.isSubmitting}
         >
           Signup
-          {form.formState.isSubmitting && <LoaderIcon className="animate-spin" />}
+          {form.formState.isSubmitting && (
+            <LoaderIcon className="animate-spin" />
+          )}
         </Button>
 
         <p className="text-center text-sm">

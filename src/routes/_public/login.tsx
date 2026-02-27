@@ -1,60 +1,56 @@
 /**
  * Node modules
  */
-import { supabase } from "@/lib/supabase/supabase";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from '@/lib/supabase';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createFileRoute,
   Link,
   redirect,
   useNavigate,
-} from "@tanstack/react-router";
-import { useHead } from "@unhead/react";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@tanstack/react-router';
+import { useHead } from '@unhead/react';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 /**
  * Components
  */
 
-import Logo from "@/components/logo/Logo";
-import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldError,
-  FieldLabel
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import Logo from '@/components/logo/Logo';
+import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 /**
  * Icons
  */
-import { LoaderIcon } from "lucide-react";
+import { LoaderIcon } from 'lucide-react';
 
 const loginFormSchema = z.object({
-  email: z.string().email("Email non valida").min(1, "Email è obbligatoria"),
+  email: z.string().email('Email non valida').min(1, 'Email è obbligatoria'),
   password: z
     .string()
-    .min(1, "Password è obbligatoria")
-    .min(8, "La password deve essere lunga almeno 8 caratteri"),
+    .min(1, 'Password è obbligatoria')
+    .min(8, 'La password deve essere lunga almeno 8 caratteri'),
 });
 
-export const Route = createFileRoute("/_public/login")({
+export const Route = createFileRoute('/_public/login')({
   validateSearch: (search): { redirect?: string } => ({
     redirect: (search.redirect as string) ?? undefined,
   }),
   beforeLoad: ({ context, search }) => {
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: search.redirect || "/app/today" });
+      throw redirect({ to: search.redirect || '/app/today' });
     }
   },
   component: LoginPage,
 });
 
 function LoginPage() {
- useHead({
-    title: "Login",
+  useHead({
+    title: 'Login',
   });
 
   const navigate = useNavigate();
@@ -65,8 +61,8 @@ function LoginPage() {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -80,14 +76,14 @@ function LoginPage() {
 
     if (error) {
       setServerError(
-        error.message === "Invalid login credentials"
-          ? "Email o password non corretti."
-          : "Si è verificato un errore. Riprova.",
+        error.message === 'Invalid login credentials'
+          ? 'Email o password non corretti.'
+          : 'Si è verificato un errore. Riprova.'
       );
       return;
     }
 
-    navigate({ to: redirect ?? "/app/today" });
+    navigate({ to: redirect ?? '/app/today' });
   };
 
   return (
@@ -98,7 +94,7 @@ function LoginPage() {
         className="flex w-[min(95vw,30em)] flex-col items-center gap-6 rounded-md border border-border p-6"
         style={{
           background:
-            "linear-gradient(hsl(var(--background)), hsl(var(--background)) 60%, hsl(var(--primary) / 0.25))",
+            'linear-gradient(hsl(var(--background)), hsl(var(--background)) 60%, hsl(var(--primary) / 0.25))',
         }}
       >
         <Logo aria-hidden="true" />
@@ -163,12 +159,17 @@ function LoginPage() {
           disabled={form.formState.isSubmitting}
         >
           Login
-          {form.formState.isSubmitting && <LoaderIcon className="animate-spin" />}
+          {form.formState.isSubmitting && (
+            <LoaderIcon className="animate-spin" />
+          )}
         </Button>
 
         <p className="text-center text-sm">
           Don't have an account yet?
-          <Link to="/register" className="ml-1 text-primary hover:underline">
+          <Link
+            to="/register"
+            className="ml-1 text-primary hover:underline"
+          >
             Sign Up
           </Link>
         </p>

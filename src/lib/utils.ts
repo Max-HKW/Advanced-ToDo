@@ -56,5 +56,9 @@ export const getTaskDueDateColorClass = (
 
   if (isBefore(dueDate, startOfToday()) && !completed) return 'text-red-500';
   if (isToday(dueDate)) return 'text-emerald-500';
-  if (isTomorrow(dueDate) && !completed) return 'text-amber-500'
+  if (isTomorrow(dueDate) && !completed) return 'text-amber-500';
+};
+
+export const generateId = () => {
+  return Math.random().toString(36).slice(8) + Date.now().toString(36);
 };

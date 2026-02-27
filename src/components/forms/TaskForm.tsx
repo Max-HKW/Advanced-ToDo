@@ -54,13 +54,13 @@ import {
 /**
  * Types
  */
-import type { TaskFormType } from '@/shemas/taskSchema';
+import type { TaskFormType } from '@/shemas/dbSchema';
 import type { ClassValue } from 'clsx';
 
 /**
  * Schemas
  */
-import { taskFormSchema } from '@/shemas/taskSchema';
+import { taskFormSchema } from '@/shemas/dbSchema';
 
 type TaskFormProps = {
   defaultFormData?: TaskFormType;

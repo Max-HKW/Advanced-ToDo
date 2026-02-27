@@ -8,7 +8,7 @@ import { routeTree } from './routeTree.gen';
 /**
  * Error Pages
  */
-import RootErrorBoundary from './pages/NotFound';
+import RootErrorBoundary from './errors/NotFound';
 
 export interface RouterContext {
   auth: {
