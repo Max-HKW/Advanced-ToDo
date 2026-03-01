@@ -1,10 +1,10 @@
 /**
  * Node modules
  */
+import { RouterProvider } from '@tanstack/react-router';
+import { createHead, UnheadProvider } from '@unhead/react/client';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createHead, UnheadProvider } from '@unhead/react/client';
-import { RouterProvider } from '@tanstack/react-router';
 import { router } from './router';
 
 /**
@@ -22,6 +22,12 @@ import './index.css';
  */
 import { LoaderIcon } from 'lucide-react';
 
+/**
+ * Query Client
+ */
+import { queryClient } from '@/lib/query/queryClient';
+import { QueryClientProvider } from '@tanstack/react-query';
+
 const AuthenticatedApp = () => {
   const auth = useAuth();
 
@@ -35,7 +41,7 @@ const AuthenticatedApp = () => {
           justifyContent: 'center',
         }}
       >
-        <LoaderIcon className="spin" />
+        <LoaderIcon className="animate-spin" />
       </div>
     );
 
@@ -52,9 +58,11 @@ const head = createHead();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UnheadProvider head={head}>
-      <AuthProvider>
-        <AuthenticatedApp />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AuthenticatedApp />
+        </AuthProvider>
+      </QueryClientProvider>
     </UnheadProvider>
   </StrictMode>
 );

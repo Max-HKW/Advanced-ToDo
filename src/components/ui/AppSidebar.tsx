@@ -45,7 +45,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
-import TaskFormDialog from '@/components/TaskFormDialog';
+import TaskFormDialog from '@/components/ui/tasks/TaskFormDialog';
 
 /**
  * Assets
@@ -93,9 +93,15 @@ const AppSidebar = () => {
               {/* Task create button */}
               <SidebarMenuItem>
                 <TaskFormDialog>
-                  <SidebarMenuButton className="text-primary">
-                    <CirclePlus /> Add task
-                  </SidebarMenuButton>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton className="text-primary">
+                        <CirclePlus /> Add task
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="right">q</TooltipContent>
+                  </Tooltip>
                 </TaskFormDialog>
               </SidebarMenuItem>
 

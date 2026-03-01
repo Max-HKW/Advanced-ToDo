@@ -25,11 +25,43 @@ import TaskForm from '@/components/forms/TaskForm';
  * Types
  */
 import { type PropsWithChildren } from 'react';
+import type { TaskFormType } from '@/shemas/dbSchema';
+
+/**
+ * Custom hooks
+ */
+import { useAuth } from '@/context/auth/AuthContext';
+import { useCreateTask } from '@/hooks/tasks/useTasks';
 
 const TaskFormDialog = ({ children }: PropsWithChildren) => {
   const location = useLocation();
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const { user } = useAuth();
+
+  const { mutate: createTask, isPending } = useCreateTask(user!.id);
+
+  const onSubmit = (formData: TaskFormType) => {
+    createTask(formData);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (event.key === 'q') {
+        const target = event.target as HTMLElement;
+        if (target.localName === 'textarea') return;
+
+        event.preventDefault();
+        setIsOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', listener);
+
+    return () => document.removeEventListener('keydown', listener);
+  }, [setIsOpen]);
 
   return (
     <Dialog
@@ -51,12 +83,10 @@ const TaskFormDialog = ({ children }: PropsWithChildren) => {
               location.pathname === '/app/today' ? startOfToday() : null,
             projectId: null,
           }}
-          mode='create'
+          mode="create"
           onCancel={() => setIsOpen(false)}
-          onSubmit={() => {
-            
-            setIsOpen(false);
-          }}
+          onSubmit={onSubmit}
+          isPending={isPending}
         />
       </DialogContent>
     </Dialog>

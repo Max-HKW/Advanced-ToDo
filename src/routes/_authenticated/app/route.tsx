@@ -7,8 +7,9 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
  * Components
  */
 import AppSidebar from '@/components/ui/AppSidebar';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
 
 /**
  * Assets
@@ -26,8 +27,11 @@ function AppLayout() {
         disableHoverableContent
       >
         <AppSidebar />
-        <SidebarTrigger />
-        <Outlet />
+
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Toaster position='top-center'/>
       </TooltipProvider>
     </SidebarProvider>
   );

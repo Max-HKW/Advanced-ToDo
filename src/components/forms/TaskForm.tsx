@@ -9,7 +9,7 @@ import * as chrono from 'chrono-node';
 /**
  * Utils
  */
-import { cn, formatCustomData, getTaskDueDateColorClass } from '@/lib/utils';
+import { cn, formatCustomDate, getTaskDueDateColorClass } from '@/lib/utils';
 
 /**
  * Components
@@ -47,6 +47,7 @@ import {
   ChevronDown,
   Hash,
   Inbox,
+  LoaderIcon,
   SendHorizonal,
   X,
 } from 'lucide-react';
@@ -68,6 +69,7 @@ type TaskFormProps = {
   mode: 'create' | 'edit';
   onCancel?: () => void;
   onSubmit?: (formData: TaskFormType) => void;
+  isPending?: boolean;
 };
 
 const DEFAULT_FORM_DATA: TaskFormType = {
@@ -82,6 +84,7 @@ const TaskForm = ({
   mode,
   onCancel,
   onSubmit,
+  isPending,
 }: TaskFormProps) => {
   const { register, control, setValue, handleSubmit } = useForm<TaskFormType>({
     resolver: zodResolver(taskFormSchema),
@@ -118,7 +121,10 @@ const TaskForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(_onSubmit)}>
+    <form
+      onSubmit={handleSubmit(_onSubmit)}
+      className={cn(className)}
+    >
       <Card className="focus-within:border-foreground/30">
         <CardContent className="p-2">
           <Textarea
@@ -126,6 +132,12 @@ const TaskForm = ({
             placeholder="After finishing the project, take a tour"
             autoFocus
             {...register('content')}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                handleSubmit(_onSubmit)();
+              }
+            }}
           />
 
           <div className="ring-1 ring-border rounded-md max-w-max">
@@ -142,7 +154,7 @@ const TaskForm = ({
                 >
                   {' '}
                   <CalendarIcon />{' '}
-                  {dueDate ? formatCustomData(dueDate) : 'Due date'}
+                  {dueDate ? formatCustomDate(dueDate) : 'Due date'}
                 </Button>
               </PopoverTrigger>
 
@@ -260,7 +272,8 @@ const TaskForm = ({
               className="aria-disabled:opacity-50 aria-disabled:pointer-events-none"
             >
               <span className="hidden md:block">
-                {mode === 'create' ? 'Add task' : 'Save'}
+                {mode === 'create' ? 'Add task' : 'Save'}{' '}
+                {isPending && <LoaderIcon className="animate-spin" />}
               </span>
 
               <SendHorizonal className="md:hidden" />

@@ -1,5 +1,5 @@
 /**
- * Node modules
+ * Assets
  */
 import { Calendar1, CircleCheck, CalendarDays, Inbox } from 'lucide-react';
 
@@ -119,3 +119,4 @@ export const PROJECT_COLORS = [
     hex: '#f43f5e',
   },
 ] as const;
+
