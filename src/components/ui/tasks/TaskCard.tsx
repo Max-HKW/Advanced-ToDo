@@ -2,44 +2,51 @@
  * Node modules
  */
 import { useState } from 'react';
+import { useLocation } from '@tanstack/react-router';
 
 /**
  * Components
  */
+import TaskForm from '@/components/forms/TaskForm';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from '@/components/ui/tooltip';
-import TaskForm from '@/components/forms/TaskForm';
 
 /**
  * Custom hooks
  */
-import { useUpdateTask } from '@/hooks/tasks/useTasks';
-import { useAuth } from '@/context/auth/AuthContext';
+import { useDeleteTask, useUpdateTask } from '@/hooks/tasks/useTasks';
 
 /**
  * Utils
  */
-import { cn, getTaskDueDateColorClass } from '@/lib/utils';
-import { formatCustomDate } from '@/lib/utils';
+import {
+  cn,
+  formatCustomDate,
+  getTaskDueDateColorClass,
+  truncateString,
+} from '@/lib/utils';
 import { toast } from 'sonner';
 
 /**
  * Assets
  */
-import {
-  Check,
-  CalendarDays,
-  Hash,
-  Inbox,
-  Edit,
-  Trash2,
-  LoaderIcon,
-} from 'lucide-react';
+import { CalendarDays, Check, Edit, Hash, Inbox, Trash2 } from 'lucide-react';
 
 /**
  * Types
@@ -53,9 +60,12 @@ type TaskCardProps = {
 const TaskCard = ({
   task: { id, content, due_date, project, completed },
 }: TaskCardProps) => {
+  const location = useLocation();
+
   const [taskFormShow, setTaskFormShow] = useState(false);
 
-  const { mutate: updateTask, isPending } = useUpdateTask();
+  const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
+  const { mutate: deleteTask, isPending: isDeleting } = useDeleteTask();
 
   const onSubmit = (formData: TaskFormType) => {
     updateTask({ id: id!, task: formData });
@@ -77,7 +87,7 @@ const TaskCard = ({
             aria-checked={completed}
             aria-label={`Mark task as ${completed ? 'incomplete' : 'complete'}`}
             aria-describedby="task-content"
-            aria-disabled={isPending}
+            aria-disabled={isUpdating}
             onClick={() => {
               const previousCompletedValue = completed;
 
@@ -118,7 +128,7 @@ const TaskCard = ({
             </CardContent>
 
             <CardFooter className="p-0 flex gap-4">
-              {due_date && (
+              {due_date && location.pathname !== '/app/today/' && (
                 <div
                   className={cn(
                     'flex items-center gap-1 text-xs text-muted-foreground',
@@ -130,13 +140,16 @@ const TaskCard = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-[minmax(0,180px)_max-content] items-center gap-1 text-xs text-muted-foreground ms-auto">
-                <div className="truncate text-right">
-                  {project?.name || 'Inbox'}
-                </div>
+              {location.pathname !== '/app/inbox' &&
+                location.pathname !== `/app/projects/${project!.id}` && (
+                  <div className="grid grid-cols-[minmax(0,180px)_max-content] items-center gap-1 text-xs text-muted-foreground ms-auto">
+                    <div className="truncate text-right">
+                      {project?.name || 'Inbox'}
+                    </div>
 
-                {project ? <Hash size={14} /> : <Inbox size={14} />}
-              </div>
+                    {project ? <Hash size={14} /> : <Inbox size={14} />}
+                  </div>
+                )}
             </CardFooter>
           </Card>
 
@@ -159,20 +172,47 @@ const TaskCard = ({
               </Tooltip>
             )}
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6 text-muted-foreground"
-                  aria-label="Delete task"
-                >
-                  <Trash2 />
-                </Button>
-              </TooltipTrigger>
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-6 text-muted-foreground"
+                      aria-label="Delete task"
+                    >
+                      <Trash2 />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
 
-              <TooltipContent>Delete task</TooltipContent>
-            </Tooltip>
+                <TooltipContent>Delete task</TooltipContent>
+              </Tooltip>
+
+              <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete task?</AlertDialogTitle>
+
+                  <AlertDialogDescription>
+                    The <strong>{truncateString(content, 48)}</strong> task will
+                    be permanently deleted.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                  <AlertDialogAction
+                    aria-disabled={isDeleting}
+                    className="aria-disabled:opacity-50 aria-disabled:pointer-events-none"
+                    onClick={() => deleteTask(id!)}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       )}

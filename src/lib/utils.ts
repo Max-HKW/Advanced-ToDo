@@ -85,3 +85,8 @@ export const mapTask = (task: RawTaskType): TaskType => ({
   ...task,
   due_date: fromSupabaseDate(task.due_date),
 });
+
+export const truncateString = (str: string, maxLength: number) => {
+  if (str.length > maxLength) return `${str.slice(0, maxLength - 1)} ...`;
+  return str;
+};

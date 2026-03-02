@@ -89,7 +89,7 @@ function RouteComponent() {
             <TaskCreateButton onClick={() => setTaskFormShow(true)} />
           )}
 
-          {!taskFormShow && <TaskEmptyState type="inbox" />}
+          {!tasks?.length && !taskFormShow && <TaskEmptyState type="inbox" />}
 
           {taskFormShow && (
             <TaskForm
